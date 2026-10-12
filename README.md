@@ -46,7 +46,11 @@ The supplied Google Business Profile text provides the business name, 183 Philip
 
 Branding is informed by the supplied Facebook screenshots: black and white presentation, a serif “Impulse” wordmark with italic “Automotive,” and the tagline “For that something special.” The supplied [Facebook page](https://www.facebook.com/impulseautomotivesales/) is linked on the website. Agent Reach's follow-up reader request returned Facebook's login gate rather than business posts or photographs. Its Facebook browser backend requires a logged-in OpenCLI browser session that this machine does not have. The supplied screenshots remain the visual evidence for the business's branding.
 
-This project contains only the public website. It has no CRM, stock manager, presentation, lead database or external service credentials.
+This project contains the public website and a client showcase film. It has no CRM, stock manager, lead database or external service credentials.
+
+## Customer journey showcase
+
+The `/showcase` page plays and downloads a 48-second landscape film at 1920 × 1080, 30 fps, with H.264 video, AAC audio and an original instrumental score. The film follows actual website screens through BMW search and sorting, M4 details, an illustrative repayment estimate, enquiry preparation and mobile browsing. It uses the same illustrative stock and pricing as the website; no enquiry is transmitted during the demonstration. The player, MP4, poster and licensed local fonts are in `public/showcase`.
 
 ## Hosting
 
