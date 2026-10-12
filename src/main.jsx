@@ -417,8 +417,8 @@ function Home({ saved, toggleSaved, onEnquire }) {
       <section className="reference-hero showroom-hero">
         <img
           className="reference-hero-image"
-          src="/images/showroom-hero.webp"
-          alt="Impulse Automotive showroom with performance cars and the updated black wall wordmark"
+          src="/images/studio-hero.webp"
+          alt="Illustrative studio image of a silver Porsche convertible"
           fetchPriority="high"
         />
         <div className="reference-hero-content">
@@ -433,7 +433,7 @@ function Home({ saved, toggleSaved, onEnquire }) {
             <br />
             Elizabeth South, South Australia.
           </p>
-          <small>Edited showroom photograph</small>
+          <small>Illustrative campaign imagery</small>
         </div>
         <a
           className="hero-map"

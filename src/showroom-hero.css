@@ -1,4 +1,4 @@
-/* The showroom wall stays clear; search sits on the darker foreground. */
+/* Center the discovery controls across the hero photograph. */
 .showroom-hero::after {
   background: linear-gradient(
     180deg,
@@ -9,20 +9,21 @@
   );
 }
 .showroom-hero .reference-hero-content {
-  top: auto;
-  bottom: 43px;
-  left: 4%;
+  top: 46%;
+  bottom: auto;
+  left: 50%;
   right: auto;
-  width: min(760px, 67%);
-  text-align: left;
+  transform: translate(-50%, -50%);
+  width: min(880px, 76%);
+  text-align: center;
 }
 .showroom-hero h1 {
-  font-size: clamp(30px, 3vw, 46px);
-  text-shadow: 0 2px 15px #0008;
+  font-size: clamp(34px, 3.6vw, 54px);
+  text-shadow: 0 2px 18px #000b;
 }
 .showroom-hero .hero-search {
   width: 100%;
-  margin: 19px 0 0;
+  margin: 23px 0 0;
   background: #232326e8;
   border-color: #ffffff24;
 }
@@ -30,9 +31,15 @@
   flex: 1;
   width: auto;
   border-right: 1px solid #ffffff20;
+  --themed-select-font-size: 12px;
+}
+.showroom-hero .hero-search .themed-select__trigger {
+  height: 48px;
 }
 .hero-search > button[type="submit"] {
   flex-shrink: 0;
+  font-size: 12px;
+  padding: 0 23px;
 }
 .showroom-hero .hero-footnote {
   top: 100px;
@@ -47,11 +54,11 @@
 }
 @media (max-width: 850px) {
   .showroom-hero .reference-hero-content {
-    width: 64%;
-    bottom: 30px;
+    width: 76%;
+    top: 47%;
   }
   .showroom-hero h1 {
-    font-size: 28px;
+    font-size: 32px;
     line-height: 1.45;
   }
   .showroom-hero .hero-search {
@@ -71,7 +78,7 @@
 }
 @media (max-width: 600px) {
   .showroom-hero {
-    height: 665px;
+    height: 690px;
     background: #262628;
   }
   .showroom-hero .reference-hero-image {
@@ -90,14 +97,16 @@
     right: 5%;
     width: auto;
     padding: 0;
+    transform: none;
   }
   .showroom-hero h1 {
-    font-size: clamp(24px, 6.5vw, 36px);
+    font-size: clamp(26px, 7vw, 38px);
     line-height: 1.45;
   }
   .showroom-hero .hero-search {
     margin-top: 20px;
   }
+  .showroom-hero .hero-search .themed-select__trigger { height: 40px; font-size: 11px; }
   .showroom-hero .hero-footnote {
     top: auto;
     bottom: 25px;
