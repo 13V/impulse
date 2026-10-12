@@ -38,12 +38,14 @@ import {
   Send,
 } from "lucide-react";
 import { vehicles, money, number, business } from "./data";
+import ThemedSelect from "./ThemedSelect";
 import "./styles.css";
 import "./dealer.css";
 import "./impulse.css";
 import "./collection.css";
 import "./direction.css";
 import "./showroom.css";
+import "./showroom-hero.css";
 
 function Logo() {
   return (
@@ -355,60 +357,48 @@ function HomeSearch() {
   }
   return (
     <form className="hero-search" onSubmit={submit} aria-label="Find a car">
-      <label>
-        <span className="sr-only">Stock availability</span>
-        <select
-          value={stock}
-          onChange={(event) => setStock(event.target.value)}
-        >
-          <option value="available">In stock</option>
-          <option value="all">All cars</option>
-        </select>
-        <ChevronRight size={12} />
-      </label>
-      <label>
-        <span className="sr-only">Car make</span>
-        <select
-          value={make}
-          onChange={(event) => {
-            setMake(event.target.value);
-            setModel("");
-          }}
-        >
-          <option value="">Any makes</option>
-          {makes.map((value) => (
-            <option key={value}>{value}</option>
-          ))}
-        </select>
-        <ChevronRight size={12} />
-      </label>
-      <label>
-        <span className="sr-only">Car model</span>
-        <select
-          value={model}
-          onChange={(event) => setModel(event.target.value)}
-        >
-          <option value="">Any models</option>
-          {models.map((value) => (
-            <option key={value}>{value}</option>
-          ))}
-        </select>
-        <ChevronRight size={12} />
-      </label>
-      <label>
-        <span className="sr-only">Car budget</span>
-        <select
-          value={budget}
-          onChange={(event) => setBudget(event.target.value)}
-        >
-          <option value="">All pricing</option>
-          <option value="40000">Up to $40,000</option>
-          <option value="70000">Up to $70,000</option>
-          <option value="100000">Up to $100,000</option>
-          <option value="200000">Up to $200,000</option>
-        </select>
-        <ChevronRight size={12} />
-      </label>
+      <ThemedSelect
+        label="Stock availability"
+        value={stock}
+        onChange={setStock}
+        options={[
+          { value: "available", label: "In stock" },
+          { value: "all", label: "All cars" },
+        ]}
+      />
+      <ThemedSelect
+        label="Car make"
+        value={make}
+        onChange={(value) => {
+          setMake(value);
+          setModel("");
+        }}
+        options={[
+          { value: "", label: "Any makes" },
+          ...makes.map((value) => ({ value, label: value })),
+        ]}
+      />
+      <ThemedSelect
+        label="Car model"
+        value={model}
+        onChange={setModel}
+        options={[
+          { value: "", label: "Any models" },
+          ...models.map((value) => ({ value, label: value })),
+        ]}
+      />
+      <ThemedSelect
+        label="Car budget"
+        value={budget}
+        onChange={setBudget}
+        options={[
+          { value: "", label: "All pricing" },
+          ...[40000, 70000, 100000, 200000].map((value) => ({
+            value: String(value),
+            label: `Up to ${money(value)}`,
+          })),
+        ]}
+      />
       <button type="submit">Search</button>
     </form>
   );
@@ -423,11 +413,11 @@ function Home({ saved, toggleSaved, onEnquire }) {
   const featured = collection.slice(featuredStart, featuredStart + 4);
   return (
     <main className="dealer-home reference-home">
-      <section className="reference-hero">
+      <section className="reference-hero showroom-hero">
         <img
           className="reference-hero-image"
-          src="/images/studio-hero.webp"
-          alt="Illustrative studio image of a silver Porsche convertible"
+          src="/images/showroom-hero.webp"
+          alt="Impulse Automotive showroom with performance cars and the updated black wall wordmark"
           fetchPriority="high"
         />
         <div className="reference-hero-content">
@@ -442,7 +432,7 @@ function Home({ saved, toggleSaved, onEnquire }) {
             <br />
             Elizabeth South, South Australia.
           </p>
-          <small>Illustrative campaign imagery</small>
+          <small>Edited showroom photograph</small>
         </div>
         <a
           className="hero-map"
@@ -828,27 +818,33 @@ function Stock({ saved, toggleSaved }) {
               </button>
             )}
           </fieldset>
-          <label className="select-field">
-            Transmission
-            <select
+          <div className="select-field">
+            <span>Transmission</span>
+            <ThemedSelect
+              label="Transmission"
               value={transmission}
-              onChange={(e) => setTransmission(e.target.value)}
-            >
-              <option value="">Any transmission</option>
-              <option>Automatic</option>
-              <option>Manual</option>
-            </select>
-          </label>
-          <label className="select-field">
-            Maximum price
-            <select value={max} onChange={(e) => setMax(e.target.value)}>
-              <option value="">No maximum</option>
-              <option value="50000">$50,000</option>
-              <option value="60000">$60,000</option>
-              <option value="70000">$70,000</option>
-              <option value="100000">$100,000</option>
-            </select>
-          </label>
+              onChange={setTransmission}
+              options={[
+                { value: "", label: "Any transmission" },
+                { value: "Automatic", label: "Automatic" },
+                { value: "Manual", label: "Manual" },
+              ]}
+            />
+          </div>
+          <div className="select-field">
+            <span>Maximum price</span>
+            <ThemedSelect
+              label="Maximum price"
+              value={max}
+              onChange={setMax}
+              options={[
+                { value: "", label: "No maximum" },
+                ...[40000, 50000, 60000, 70000, 100000, 200000].map(
+                  (value) => ({ value: String(value), label: money(value) }),
+                ),
+              ]}
+            />
+          </div>
           <div className="filter-contact">
             <MessageSquare size={24} />
             <h3>
@@ -923,19 +919,20 @@ function Stock({ saved, toggleSaved }) {
                 <SlidersHorizontal size={17} />
                 Filters {filterCount > 0 && `(${filterCount})`}
               </button>
-              <label className="sort-label">
-                Sort by
-                <select
+              <div className="sort-label">
+                <span>Sort by</span>
+                <ThemedSelect
+                  label="Sort stock"
                   value={sort}
-                  onChange={(e) => setSort(e.target.value)}
-                  aria-label="Sort stock"
-                >
-                  <option value="newest">Newest model</option>
-                  <option value="price-low">Price: low to high</option>
-                  <option value="price-high">Price: high to low</option>
-                  <option value="kms">Lowest kilometres</option>
-                </select>
-              </label>
+                  onChange={setSort}
+                  options={[
+                    { value: "newest", label: "Newest model" },
+                    { value: "price-low", label: "Price: low to high" },
+                    { value: "price-high", label: "Price: high to low" },
+                    { value: "kms", label: "Lowest kilometres" },
+                  ]}
+                />
+              </div>
             </div>
           </div>
           {filtered.length ? (

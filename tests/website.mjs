@@ -36,6 +36,35 @@ const status = value => page.locator('.stock-tabs button').filter({ hasText: new
 const reset = () => page.locator('.filter-applied button').click();
 const goStock = () => page.goto(`${baseURL}/stock`);
 const screenshot = name => page.screenshot({ path: resolve(screenshotDir, name), fullPage: true });
+const controlledListbox = async control => {
+  const id = await control.getAttribute('aria-controls');
+  expect(id).toBeTruthy();
+  return page.locator(`[role="listbox"][id=${JSON.stringify(id)}]`);
+};
+async function expectSelectValue(control, value, label) {
+  if (await control.evaluate(element => element.tagName === 'SELECT')) {
+    await expect(control).toHaveValue(value);
+  } else {
+    await expect(control).toHaveAttribute('data-value', value);
+    if (label) await expect(control).toContainText(label);
+  }
+}
+async function chooseSelect(control, value) {
+  if (await control.evaluate(element => element.tagName === 'SELECT')) {
+    await control.selectOption(value);
+    await expect(control).toHaveValue(value);
+    return;
+  }
+  await control.click();
+  const listbox = await controlledListbox(control);
+  await expect(listbox).toBeVisible();
+  const option = listbox.locator(`[role="option"][data-value=${JSON.stringify(value)}]`);
+  const label = (await option.innerText()).trim();
+  await option.click();
+  await expectSelectValue(control, value, label);
+  await expect(control).toHaveAttribute('aria-expanded', 'false');
+  await expect(listbox).toBeHidden();
+}
 
 try {
   await page.goto(baseURL);
@@ -81,11 +110,50 @@ try {
     }
     await page.goto(baseURL);
   });
+  await check('Themed hero dropdowns support keyboard selection, dependent models and dismissal', async () => {
+    const make = page.getByRole('combobox', { name: 'Car make', exact: true });
+    const model = page.getByRole('combobox', { name: 'Car model', exact: true });
+    expect(await make.evaluate(element => element.tagName)).toBe('BUTTON');
+    await make.focus();
+    await page.keyboard.press('Enter');
+    const makes = await controlledListbox(make);
+    await expect(makes).toBeVisible();
+    await expect(make).toHaveAttribute('aria-expanded', 'true');
+    await page.keyboard.press('Home');
+    await page.keyboard.press('ArrowDown');
+    const bmw = makes.getByRole('option', { name: 'BMW', exact: true });
+    const activeId = await bmw.getAttribute('id');
+    expect(activeId).toBeTruthy();
+    await expect(make).toHaveAttribute('aria-activedescendant', activeId);
+    await page.keyboard.press('Enter');
+    await expectSelectValue(make, 'BMW', 'BMW');
+    await expect(makes).toBeHidden();
+    await expect(make).toBeFocused();
+    await model.click();
+    const models = await controlledListbox(model);
+    await expect(models.getByRole('option', { name: 'M4 Coupé', exact: true })).toBeVisible();
+    await expect(models.getByRole('option', { name: 'Polo GTI', exact: true })).toHaveCount(0);
+    await expect(models.getByRole('option', { name: 'G-Class', exact: true })).toHaveCount(0);
+    await page.keyboard.press('Escape');
+    await expect(models).toBeHidden();
+    await expect(model).toHaveAttribute('aria-expanded', 'false');
+    await expect(model).toBeFocused();
+    await chooseSelect(model, 'M4 Coupé');
+    await chooseSelect(make, 'Volkswagen');
+    await expectSelectValue(model, '', 'Any models');
+    await model.click();
+    await expect(models.getByRole('option', { name: 'Polo GTI', exact: true })).toBeVisible();
+    await expect(models.getByRole('option', { name: 'M4 Coupé', exact: true })).toHaveCount(0);
+    await page.getByRole('heading', { level: 1 }).click();
+    await expect(models).toBeHidden();
+    await expect(model).toHaveAttribute('aria-expanded', 'false');
+    await page.goto(baseURL);
+  });
   await check('Home hero search carries make, model and budget into matching stock', async () => {
     const search = page.getByRole('form', { name: 'Find a car' });
-    await search.getByRole('combobox', { name: 'Car make', exact: true }).selectOption('BMW');
-    await search.getByRole('combobox', { name: 'Car model', exact: true }).selectOption('M4 Coupé');
-    await search.getByRole('combobox', { name: 'Car budget', exact: true }).selectOption('100000');
+    await chooseSelect(search.getByRole('combobox', { name: 'Car make', exact: true }), 'BMW');
+    await chooseSelect(search.getByRole('combobox', { name: 'Car model', exact: true }), 'M4 Coupé');
+    await chooseSelect(search.getByRole('combobox', { name: 'Car budget', exact: true }), '100000');
     await search.getByRole('button', { name: 'Search', exact: true }).click();
     await expect(page).toHaveURL(/\/stock\?/);
     const query = new URL(page.url()).searchParams;
@@ -97,7 +165,7 @@ try {
     await expect(cards().first().locator('.card-title')).toHaveAttribute('href', firstVehicleRoute);
     await expect(page.getByRole('textbox', { name: 'Search stock' })).toHaveValue('M4 Coupé');
     await expect(page.getByRole('checkbox', { name: /^BMW/ })).toBeChecked();
-    await expect(page.getByRole('combobox', { name: /^Maximum price/ })).toHaveValue('100000');
+    await expectSelectValue(page.getByRole('combobox', { name: /^Maximum price/ }), '100000', '$100,000');
     await page.goto(baseURL);
   });
   await check('Home collection browses featured cars and switches stock availability', async () => {
@@ -170,12 +238,12 @@ try {
     await reset();
   });
   await check('Transmission and maximum price filters', async () => {
-    await page.getByRole('combobox', { name: /^Transmission/ }).selectOption('Manual');
+    await chooseSelect(page.getByRole('combobox', { name: /^Transmission/ }), 'Manual');
     await expect(cards()).toHaveCount(1);
     await expect(cards().first()).toContainText('Polo GTI');
-    await page.getByRole('combobox', { name: /^Transmission/ }).selectOption('Automatic');
+    await chooseSelect(page.getByRole('combobox', { name: /^Transmission/ }), 'Automatic');
     await expect(cards()).toHaveCount(5);
-    await page.getByRole('combobox', { name: /^Maximum price/ }).selectOption('60000');
+    await chooseSelect(page.getByRole('combobox', { name: /^Maximum price/ }), '60000');
     await expect(cards()).toHaveCount(1);
     await expect(cards().first()).toContainText('BMW i8');
     await reset();
@@ -187,15 +255,15 @@ try {
     await expect(cards()).toHaveCount(6);
   });
   await check('Sorting by price and kilometres', async () => {
-    await page.getByLabel('Sort stock').selectOption('price-low');
+    await chooseSelect(page.getByRole('combobox', { name: 'Sort stock', exact: true }), 'price-low');
     const prices = await page.locator('.stock-grid .card-bottom strong').allTextContents();
     expect(prices.map(s => +s.replace(/\D/g, ''))).toEqual([24990, 57990, 64990, 69990, 94990, 179990]);
-    await page.getByLabel('Sort stock').selectOption('price-high');
+    await chooseSelect(page.getByRole('combobox', { name: 'Sort stock', exact: true }), 'price-high');
     await expect(cards().first()).toContainText('Mercedes-AMG G-Class');
-    await page.getByLabel('Sort stock').selectOption('kms');
+    await chooseSelect(page.getByRole('combobox', { name: 'Sort stock', exact: true }), 'kms');
     await expect(cards().first().locator('.card-title')).toHaveText('BMW i8');
     await expect(cards().first().locator('.card-variant')).toContainText('2017');
-    await page.getByLabel('Sort stock').selectOption('newest');
+    await chooseSelect(page.getByRole('combobox', { name: 'Sort stock', exact: true }), 'newest');
   });
   await check('Save a car and persist saved state', async () => {
     const firstSave = cards().first().getByRole('button', { name: /^Save / });
@@ -260,7 +328,7 @@ try {
   await check('Repayment calculator updates at zero interest', async () => {
     await page.locator('.finance-toggle').click();
     await page.getByLabel('Deposit', { exact: true }).fill('20000');
-    await page.getByRole('combobox', { name: /^Term/ }).selectOption('3');
+    await chooseSelect(page.getByRole('combobox', { name: /^Term/ }), '3');
     await page.getByLabel('Annual interest rate').fill('0');
     const weekly = Math.round((94990 - 20000) / 36 * 12 / 52);
     await expect(page.locator('.finance-toggle b')).toHaveText(`$${weekly} / week`);
