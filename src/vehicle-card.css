@@ -1,0 +1,215 @@
+@font-face {
+  font-family: "Cormorant Garamond";
+  src: url("/fonts/cormorant-garamond-400.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Cormorant Garamond";
+  src: url("/fonts/cormorant-garamond-500.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+}
+
+/* The specification sheet uses quieter type than the site's display headings. */
+.vehicle-page .vehicle-summary {
+  padding: clamp(27px, 2.5vw, 44px);
+  background: #1e1f1d;
+  border: 1px solid #393b35;
+  border-top: 1px solid #9b8d62;
+  border-radius: 11px;
+  color: #efede5;
+}
+.vehicle-summary-top {
+  align-items: center;
+}
+.vehicle-identity {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 13px;
+}
+.vehicle-year {
+  font-family: "Manrope", sans-serif;
+  font-size: 24px;
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: -0.4px;
+  color: #efede5;
+}
+.vehicle-marque {
+  border-left: 1px solid #615d50;
+  padding-left: 13px;
+  font-size: 12px;
+  letter-spacing: 1.6px;
+  color: #c1bcad;
+  text-transform: uppercase;
+}
+.vehicle-page .detail-save {
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  border-color: #45473e;
+  color: #d5c491;
+}
+.vehicle-page .vehicle-summary h1 {
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: clamp(49px, 4vw, 68px);
+  font-weight: 400;
+  line-height: 1.06;
+  letter-spacing: -0.035em;
+  margin-top: 23px;
+  overflow-wrap: normal;
+  text-wrap: balance;
+  color: #f2efe6;
+}
+.vehicle-page .vehicle-variant {
+  margin-top: 13px;
+  font-size: 12px;
+  line-height: 1.8;
+  color: #b5b2a8;
+}
+.vehicle-page .summary-specs {
+  padding: 30px 0;
+  gap: 25px 19px;
+  border-color: #3c3e36;
+}
+.vehicle-page .summary-specs > span {
+  column-gap: 10px;
+}
+.vehicle-page .summary-specs svg {
+  color: #b8ad89;
+  stroke-width: 1.4;
+  width: 17px;
+}
+.vehicle-page .summary-specs small {
+  color: #a8a79b;
+  font-size: 10px;
+  letter-spacing: 0.45px;
+}
+.vehicle-page .summary-specs b {
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.55;
+  color: #eeede6;
+}
+.vehicle-page .vehicle-price {
+  padding: 28px 0 30px;
+}
+.vehicle-page .price-label {
+  font-family: "Manrope", sans-serif;
+  font-size: 10px;
+  font-weight: 400;
+  letter-spacing: 1.3px;
+  color: #b4ad98;
+  text-transform: uppercase;
+  margin-bottom: 11px;
+}
+.vehicle-page .vehicle-price strong {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: clamp(58px, 4.6vw, 78px);
+  font-weight: 500;
+  font-variant-numeric: lining-nums;
+  letter-spacing: -0.035em;
+  line-height: 0.98;
+  color: #f2efe6;
+}
+.price-currency {
+  font-size: 0.55em;
+  letter-spacing: -0.04em;
+}
+.vehicle-page .vehicle-price small {
+  margin-top: 11px;
+  font-size: 11px;
+  line-height: 1.7;
+  color: #aba99c;
+}
+.vehicle-page .sold-word {
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: 52px;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  color: #e6ddc2;
+}
+.vehicle-page .finance {
+  border: 1px solid #3b3e34;
+  background: #242621;
+  padding: 20px;
+  border-radius: 7px;
+}
+.vehicle-page .finance-toggle small,
+.vehicle-page .finance p {
+  font-size: 11px;
+  color: #b6b4a7;
+  line-height: 1.7;
+}
+.vehicle-page .finance-toggle b {
+  font-weight: 500;
+}
+.vehicle-page .vehicle-summary > .button {
+  margin-top: 18px;
+  min-height: 55px;
+  font-weight: 500;
+}
+.vehicle-page .vehicle-phone {
+  padding: 25px 0;
+  border-color: #3c3e36;
+}
+.vehicle-page .vehicle-phone small {
+  color: #b0ae9f;
+  font-size: 11px;
+}
+.vehicle-page .vehicle-phone b {
+  font-family: "Manrope", sans-serif;
+  font-size: 22px;
+  font-weight: 400;
+  letter-spacing: -0.35px;
+  color: #efede5;
+}
+.vehicle-page .vehicle-phone > svg {
+  color: #c5b88c;
+}
+.vehicle-page .map-card {
+  border-color: #45473e;
+}
+.vehicle-page .summary-stock {
+  font-size: 9px;
+  color: #a7a597;
+}
+@media (max-width: 600px) {
+  .vehicle-page .vehicle-summary {
+    padding: 28px 23px;
+  }
+  .vehicle-year {
+    font-size: 23px;
+  }
+  .vehicle-marque {
+    font-size: 11px;
+    letter-spacing: 1.3px;
+  }
+  .vehicle-page .vehicle-summary h1 {
+    font-size: clamp(46px, 12.5vw, 58px);
+    margin-top: 21px;
+  }
+  .vehicle-page .summary-specs {
+    gap: 24px 14px;
+    padding: 28px 0;
+  }
+  .vehicle-page .summary-specs b {
+    font-size: 14px;
+  }
+  .vehicle-page .vehicle-price strong {
+    font-size: 65px;
+  }
+  .vehicle-page .vehicle-price small {
+    font-size: 10px;
+  }
+  .vehicle-page .vehicle-phone b {
+    font-size: 21px;
+  }
+}

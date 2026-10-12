@@ -46,6 +46,7 @@ import "./collection.css";
 import "./direction.css";
 import "./showroom.css";
 import "./showroom-hero.css";
+import "./vehicle-card.css";
 
 function Logo() {
   return (
@@ -1172,8 +1173,14 @@ function Vehicle({ saved, toggleSaved, onEnquire }) {
         </div>
         <aside className="vehicle-summary">
           <div className="vehicle-summary-top">
-            <span className="eyebrow">
-              {car.year} · {car.make}
+            <span className="vehicle-identity">
+              <span
+                className="vehicle-year"
+                aria-label={`Model year ${car.year}`}
+              >
+                {car.year}
+              </span>
+              <span className="vehicle-marque">{car.make}</span>
             </span>
             <button
               className={`detail-save ${saved.includes(car.id) ? "is-saved" : ""}`}
@@ -1221,8 +1228,11 @@ function Vehicle({ saved, toggleSaved, onEnquire }) {
               </>
             ) : (
               <>
-                <span className="price-label">YOUR NEXT DRIVE</span>
-                <strong>{money(car.price)}</strong>
+                <span className="price-label">Asking price</span>
+                <strong>
+                  <span className="price-currency">$</span>
+                  <span className="price-amount">{number(car.price)}</span>
+                </strong>
                 <small>Excludes government charges · Sample price</small>
               </>
             )}
