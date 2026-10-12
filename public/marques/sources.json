@@ -1,0 +1,42 @@
+{
+  "package": "simple-icons@16.35.0",
+  "icons": [
+    {
+      "title": "Audi",
+      "slug": "audi",
+      "hex": "BB0A30",
+      "source": "https://www.audi.com/ci/en/intro/basics/rings.html",
+      "guidelines": "https://www.audi.com/ci/en/intro/basics/rings.html"
+    },
+    {
+      "title": "BMW",
+      "slug": "bmw",
+      "hex": "0066B1",
+      "source": "https://bmw.com"
+    },
+    {
+      "title": "Ferrari",
+      "slug": "ferrari",
+      "hex": "D40000",
+      "source": "https://www.ferrari.com"
+    },
+    {
+      "title": "Porsche",
+      "slug": "porsche",
+      "hex": "B12B28",
+      "source": "https://www.porsche.com"
+    },
+    {
+      "title": "Tesla",
+      "slug": "tesla",
+      "hex": "CC0000",
+      "source": "https://www.tesla.com/tesla-gallery"
+    },
+    {
+      "title": "Volkswagen",
+      "slug": "volkswagen",
+      "hex": "151F5D",
+      "source": "https://www.vw.com"
+    }
+  ]
+}

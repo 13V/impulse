@@ -81,10 +81,65 @@ try {
     }
     await page.goto(baseURL);
   });
+  await check('Home hero search carries make, model and budget into matching stock', async () => {
+    const search = page.getByRole('form', { name: 'Find a car' });
+    await search.getByRole('combobox', { name: 'Car make', exact: true }).selectOption('BMW');
+    await search.getByRole('combobox', { name: 'Car model', exact: true }).selectOption('M4 Coupé');
+    await search.getByRole('combobox', { name: 'Car budget', exact: true }).selectOption('100000');
+    await search.getByRole('button', { name: 'Search', exact: true }).click();
+    await expect(page).toHaveURL(/\/stock\?/);
+    const query = new URL(page.url()).searchParams;
+    expect(query.get('make')).toBe('BMW');
+    expect(query.get('model')).toBe('M4 Coupé');
+    expect(query.get('max')).toBe('100000');
+    await expect(cards()).toHaveCount(1);
+    await expect(cards().first().locator('.card-title')).toHaveText('BMW M4 Coupé');
+    await expect(cards().first().locator('.card-title')).toHaveAttribute('href', firstVehicleRoute);
+    await expect(page.getByRole('textbox', { name: 'Search stock' })).toHaveValue('M4 Coupé');
+    await expect(page.getByRole('checkbox', { name: /^BMW/ })).toBeChecked();
+    await expect(page.getByRole('combobox', { name: /^Maximum price/ })).toHaveValue('100000');
+    await page.goto(baseURL);
+  });
+  await check('Home collection browses featured cars and switches stock availability', async () => {
+    const tabs = page.getByRole('group', { name: 'Featured stock availability' });
+    const featuredCards = page.locator('.featured .car-card');
+    const previous = page.getByRole('button', { name: 'Previous featured cars', exact: true });
+    const next = page.getByRole('button', { name: 'Next featured cars', exact: true });
+    await expect(previous).toBeDisabled();
+    await expect(next).toBeEnabled();
+    await expect(featuredCards.first().locator('.card-title')).toHaveText('BMW M4 Coupé');
+    await next.click();
+    await expect(featuredCards).toHaveCount(4);
+    await expect(featuredCards.first().locator('.card-title')).toHaveText('BMW 6 Series Gran Coupé');
+    await expect(previous).toBeEnabled();
+    await previous.click();
+    await expect(featuredCards.first().locator('.card-title')).toHaveText('BMW M4 Coupé');
+    await expect(previous).toBeDisabled();
+    await tabs.getByRole('button', { name: 'Sold cars', exact: true }).click();
+    await expect(tabs.getByRole('button', { name: 'Sold cars', exact: true })).toHaveAttribute('aria-pressed', 'true');
+    await expect(featuredCards).toHaveCount(2);
+    await expect(page.locator('.featured .sold-tag')).toHaveCount(2);
+    await expect(previous).toBeDisabled();
+    await expect(next).toBeDisabled();
+    await tabs.getByRole('button', { name: 'All cars', exact: true }).click();
+    await expect(tabs.getByRole('button', { name: 'All cars', exact: true })).toHaveAttribute('aria-pressed', 'true');
+    await expect(featuredCards).toHaveCount(4);
+    await tabs.getByRole('button', { name: 'In stock', exact: true }).click();
+    await expect(tabs.getByRole('button', { name: 'In stock', exact: true })).toHaveAttribute('aria-pressed', 'true');
+    await expect(featuredCards).toHaveCount(4);
+    await expect(page.locator('.featured .sold-tag')).toHaveCount(0);
+  });
+  await check('Header contact action opens and closes the enquiry', async () => {
+    await page.locator('.header-actions').getByRole('button', { name: 'Contact us', exact: true }).click();
+    const dialog = page.getByRole('dialog', { name: 'Enquire with Impulse Automotive' });
+    await expect(dialog).toBeVisible();
+    await page.keyboard.press('Escape');
+    await expect(dialog).toHaveCount(0);
+  });
   await check('Home page and stock links', async () => {
-    await expect(page.getByRole('heading', { level: 1 })).toHaveText('For that something special.');
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Find your dream car');
     await expect(page).toHaveTitle(/Impulse Automotive/);
-    await expect(page.locator('.featured .car-card')).toHaveCount(3);
+    await expect(page.locator('.featured .car-card')).toHaveCount(4);
     await page.getByRole('link', { name: 'Explore our stock', exact: true }).click();
     await expect(page).toHaveURL(/\/stock$/);
     await expect(cards()).toHaveCount(6);
@@ -138,7 +193,8 @@ try {
     await page.getByLabel('Sort stock').selectOption('price-high');
     await expect(cards().first()).toContainText('Mercedes-AMG G-Class');
     await page.getByLabel('Sort stock').selectOption('kms');
-    await expect(cards().first()).toContainText('2017 BMW i8');
+    await expect(cards().first().locator('.card-title')).toHaveText('BMW i8');
+    await expect(cards().first().locator('.card-variant')).toContainText('2017');
     await page.getByLabel('Sort stock').selectOption('newest');
   });
   await check('Save a car and persist saved state', async () => {
@@ -148,7 +204,8 @@ try {
     await page.reload();
     await page.locator('.saved-button').click();
     await expect(cards()).toHaveCount(1);
-    await expect(cards().first()).toContainText('2019 Mercedes-AMG G-Class');
+    await expect(cards().first().locator('.card-title')).toHaveText('Mercedes-AMG G-Class');
+    await expect(cards().first().locator('.card-variant')).toContainText('2019');
     await page.locator('.saved-button').click();
     await expect(cards()).toHaveCount(6);
   });
@@ -301,7 +358,7 @@ try {
     await expect(toggle).toHaveAttribute('aria-expanded', 'false');
     await expect(toggle).toBeFocused();
     await toggle.click();
-    await page.locator('.nav').getByRole('link', { name: 'Our stock', exact: true }).click();
+    await page.locator('.nav').getByRole('link', { name: 'Inventory', exact: true }).click();
     await expect(page).toHaveURL(/\/stock$/);
     await expect(page.getByRole('button', { name: 'Open navigation' })).toHaveAttribute('aria-expanded', 'false');
   });

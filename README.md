@@ -2,7 +2,7 @@
 
 A React/Vite website adapted from the supplied reference website layout for Impulse Automotive in Elizabeth South, South Australia. The reference repository is unchanged.
 
-The design uses the business's monochrome identity with charcoal, white and warm neutral backgrounds, serif display typography, generous space and a single image-led hero. Stock browsing, useful vehicle facts and direct showroom contact remain the main actions.
+The design follows the supplied dealership references: charcoal surfaces, yellow controls, wide geometric Michroma headings, a studio-car hero with working search, staggered service panels, compact inventory cards, a sell-your-car campaign banner and a rounded white footer. Stock and vehicle-detail pages use the same design language. Stock browsing, useful vehicle facts and direct showroom contact remain the main actions.
 
 ## Prestige benchmarks
 
@@ -37,6 +37,8 @@ With the development server running, run the browser smoke checks with `npm test
 The app includes the home page, stock search and filters, sorting, saved vehicles, vehicle details and photo galleries, an illustrative repayment calculator, and an enquiry message builder. Saved vehicles stay in this browser. Enquiries open an SMS app when the visitor chooses to send; no lead is submitted by the website itself.
 
 ## Demo content
+
+The silver convertible hero, white SUV cutout and silver supercar sell banner are generated illustrative campaign images, not photographs of Impulse stock or its showroom. The marque strip expresses the supplied visual reference and does not claim current brand availability. Michroma is bundled under the SIL Open Font License; marque SVGs from Simple Icons include their license, disclaimer and source details in `public/marques`. The dark location graphic is a schematic link to the business's Google Maps destination, rather than a navigational map.
 
 Inventory, prices, specifications and generic vehicle photography are illustrative examples. Model descriptors match the visible BMW, Volkswagen and Mercedes-AMG photographs, while years, kilometres, prices and specifications remain sample data. Each gallery contains only available photographs relevant to that model; single-photo examples have no carousel controls. Repeated photographs demonstrate different listing states rather than separate verified vehicles. These are not live Impulse Automotive listings or evidence of actual sales. The demo labels these examples on the home, collection and vehicle pages. Replace all examples with approved business inventory and matching photography before launch.
 

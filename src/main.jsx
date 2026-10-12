@@ -8,6 +8,7 @@ import {
   useLocation,
   useSearchParams,
   useParams,
+  useNavigate,
 } from "react-router-dom";
 import {
   ArrowUpRight,
@@ -18,6 +19,7 @@ import {
   Phone,
   MapPin,
   Heart,
+  Bookmark,
   Search,
   SlidersHorizontal,
   X,
@@ -28,20 +30,20 @@ import {
   CalendarDays,
   Check,
   Expand,
-  Star,
   CarFront,
-  ShieldCheck,
   MessageSquare,
   Plus,
   Minus,
   Copy,
   Send,
-  Quote,
 } from "lucide-react";
 import { vehicles, money, number, business } from "./data";
 import "./styles.css";
 import "./dealer.css";
 import "./impulse.css";
+import "./collection.css";
+import "./direction.css";
+import "./showroom.css";
 
 function Logo() {
   return (
@@ -79,43 +81,43 @@ function App() {
     <BrowserRouter>
       <ScrollReset />
       <SiteLayout onEnquire={() => setEnquiry({})}>
-          <Routes>
-            <Route
-              path="/"
-              element={
-                <Home
-                  saved={saved}
-                  toggleSaved={toggleSaved}
-                  onEnquire={setEnquiry}
-                />
-              }
-            />
-            <Route
-              path="/stock"
-              element={<Stock saved={saved} toggleSaved={toggleSaved} />}
-            />
-            <Route
-              path="/stock/:id"
-              element={
-                <Vehicle
-                  saved={saved}
-                  toggleSaved={toggleSaved}
-                  onEnquire={setEnquiry}
-                />
-              }
-            />
-            <Route
-              path="*"
-              element={
-                <div className="not-found">
-                  <h1>That road ends here.</h1>
-                  <Link className="button primary" to="/stock">
-                    Explore our stock <ArrowRight size={18} />
-                  </Link>
-                </div>
-              }
-            />
-          </Routes>
+        <Routes>
+          <Route
+            path="/"
+            element={
+              <Home
+                saved={saved}
+                toggleSaved={toggleSaved}
+                onEnquire={setEnquiry}
+              />
+            }
+          />
+          <Route
+            path="/stock"
+            element={<Stock saved={saved} toggleSaved={toggleSaved} />}
+          />
+          <Route
+            path="/stock/:id"
+            element={
+              <Vehicle
+                saved={saved}
+                toggleSaved={toggleSaved}
+                onEnquire={setEnquiry}
+              />
+            }
+          />
+          <Route
+            path="*"
+            element={
+              <div className="not-found">
+                <h1>That road ends here.</h1>
+                <Link className="button primary" to="/stock">
+                  Explore our stock <ArrowRight size={18} />
+                </Link>
+              </div>
+            }
+          />
+        </Routes>
       </SiteLayout>
       {enquiry && (
         <Enquiry
@@ -127,12 +129,15 @@ function App() {
   );
 }
 function SiteLayout({ children, onEnquire }) {
+  const { pathname } = useLocation();
   return (
-    <>
+    <div
+      className={`site-shell ${pathname === "/" ? "home-shell" : "inner-shell"}`}
+    >
       <Header onEnquire={onEnquire} />
       {children}
       <Footer />
-    </>
+    </div>
   );
 }
 function ScrollReset() {
@@ -197,43 +202,49 @@ function Header({ onEnquire }) {
             <Link className={pathname === "/" ? "active" : ""} to="/">
               Home
             </Link>
+            <a href="/#about" onClick={() => setOpen(false)}>
+              About us
+            </a>
             <Link
               className={
                 pathname.startsWith("/stock") && !soldView ? "active" : ""
               }
               to="/stock"
             >
-              Our stock
+              Inventory
             </Link>
-            <Link className={soldView ? "active" : ""} to="/stock?status=sold">
+            <Link
+              className={`nav-sold ${soldView ? "active" : ""}`}
+              to="/stock?status=sold"
+            >
               Sold cars
             </Link>
-            <a href="/#about" onClick={() => setOpen(false)}>
-              Our story
+            <a href="/#services" onClick={() => setOpen(false)}>
+              Services
             </a>
-            <a href="/#reviews" onClick={() => setOpen(false)}>
-              Reviews
-            </a>
+          </nav>
+          <div className="header-actions">
             <button
-              className="button small primary"
+              className="button small header-enquire"
+              aria-label="Contact us"
               onClick={() => {
                 setOpen(false);
                 onEnquire();
               }}
             >
-              Contact us <Phone size={16} />
+              Sell your car
             </button>
-          </nav>
-          <button
-            ref={menuButton}
-            className="menu-button"
-            aria-label={open ? "Close navigation" : "Open navigation"}
-            aria-expanded={open}
-            aria-controls="main-navigation"
-            onClick={() => setOpen(!open)}
-          >
-            {open ? <X /> : <Menu />}
-          </button>
+            <button
+              ref={menuButton}
+              className="menu-button"
+              aria-label={open ? "Close navigation" : "Open navigation"}
+              aria-expanded={open}
+              aria-controls="main-navigation"
+              onClick={() => setOpen(!open)}
+            >
+              {open ? <X /> : <Menu />}
+            </button>
+          </div>
         </div>
       </header>
     </>
@@ -241,12 +252,14 @@ function Header({ onEnquire }) {
 }
 function CarCard({ car, saved, toggleSaved }) {
   return (
-    <article className={`car-card ${car.status === "sold" ? "sold-card" : ""}`}>
+    <article
+      className={`car-card collection-card ${car.status === "sold" ? "sold-card" : ""}`}
+    >
       <div className="card-heading">
         <Link className="card-title" to={`/stock/${car.id}`}>
-          {car.year} {car.make} {car.model}
+          {car.make} {car.model}
         </Link>
-        <p className="card-variant">{car.variant}</p>
+        <p className="card-variant">Elizabeth South, SA · {car.year}</p>
       </div>
       <Link
         className="card-photo"
@@ -280,7 +293,7 @@ function CarCard({ car, saved, toggleSaved }) {
             aria-pressed={saved.includes(car.id)}
             onClick={() => toggleSaved(car.id)}
           >
-            <Heart
+            <Bookmark
               size={22}
               fill={saved.includes(car.id) ? "currentColor" : "none"}
             />
@@ -288,14 +301,17 @@ function CarCard({ car, saved, toggleSaved }) {
         </div>
         <div className="card-specs">
           <span>
+            <small>On the clock</small>
             <Gauge size={16} />
             {number(car.kms)} km
           </span>
           <span>
+            <small>Transmission</small>
             <Cog size={16} />
             {car.transmission}
           </span>
           <span>
+            <small>Fuel type</small>
             <Fuel size={16} />
             {car.fuel}
           </span>
@@ -314,189 +330,370 @@ function CarCard({ car, saved, toggleSaved }) {
     </article>
   );
 }
-function Home({ saved, toggleSaved, onEnquire }) {
+function HomeSearch() {
+  const navigate = useNavigate();
+  const [make, setMake] = useState("");
+  const [model, setModel] = useState("");
+  const [budget, setBudget] = useState("");
+  const [stock, setStock] = useState("available");
+  const makes = [...new Set(vehicles.map((car) => car.make))];
+  const models = [
+    ...new Set(
+      vehicles
+        .filter((car) => !make || car.make === make)
+        .map((car) => car.model),
+    ),
+  ];
+  function submit(event) {
+    event.preventDefault();
+    const query = new URLSearchParams();
+    if (stock === "all") query.set("status", "all");
+    if (make) query.set("make", make);
+    if (model) query.set("model", model);
+    if (budget) query.set("max", budget);
+    navigate(`/stock${query.size ? `?${query}` : ""}`);
+  }
   return (
-    <main className="dealer-home">
-      <section className="dealer-banner">
-        <div className="dealer-intro">
-          <p className="dealer-location">Impulse Automotive · Elizabeth South, SA</p>
-          <h1>
-            For that <em>something special.</em>
-          </h1>
-          <p>
-            Classics, performance and everyday favourites. Buy, sell or trade
-            with a local team who make time for you.
-          </p>
-          <div className="dealer-hero-actions">
-            <Link className="button primary" to="/stock">
-              Explore our stock <ArrowRight size={20} />
-            </Link>
-            <Link className="dealer-hero-visit" to="/#about">
-              Visit our showroom <ArrowUpRight size={18} />
-            </Link>
-          </div>
-        </div>
-        <div className="dealer-banner-image">
-          <img src="/images/car-1.jpg" alt="Illustrative red BMW M4 coupe photography" fetchPriority="high" />
-          <span>CLASSICS / PERFORMANCE / PRESTIGE</span>
-        </div>
-      </section>
-      <div className="dealer-proof">
-        <span>
-          <ShieldCheck size={23} />
-          <span><b>Family owned &amp; operated</b><small>A local team who love cars</small></span>
-        </span>
-        <span>
-          <Star size={23} fill="currentColor" />
-          <span><b>4.6 out of 5 on Google</b><small>From 41 customer reviews</small></span>
-        </span>
-        <span>
-          <MapPin size={23} />
-          <span><b>Elizabeth South, SA</b><small>{business.address}</small></span>
-        </span>
-      </div>
-      <nav className="dealer-shortcuts" aria-label="Showroom links">
-        <Link to="/stock">
-          <CarFront size={22} />
-          Available cars <ArrowRight size={18} />
-        </Link>
-        <Link to="/stock?status=sold">
-          <Check size={22} />
-          Recently sold <ArrowRight size={18} />
-        </Link>
-        <button onClick={() => onEnquire({})}>
-          <MessageSquare size={22} />
-          Sell or trade your car <ArrowRight size={18} />
-        </button>
-        <a href={business.maps} target="_blank" rel="noreferrer">
-          <MapPin size={22} />
-          Find our showroom <ArrowUpRight size={18} />
-        </a>
-      </nav>
-      <section className="section collection">
-        <div className="section-title">
-          <div>
-            <div className="eyebrow">THE COLLECTION</div>
-            <h2>A drive worth finding.</h2>
-            <p>Discover the example collection, then talk to us about your next car.</p>
-          </div>
-          <Link className="text-link" to="/stock">
-            View all stock <ArrowRight size={19} />
-          </Link>
-        </div>
-        <div className="card-grid featured">
-          {vehicles.slice(0, 3).map((car) => (
-            <CarCard key={car.id} {...{ car, saved, toggleSaved }} />
+    <form className="hero-search" onSubmit={submit} aria-label="Find a car">
+      <label>
+        <span className="sr-only">Stock availability</span>
+        <select
+          value={stock}
+          onChange={(event) => setStock(event.target.value)}
+        >
+          <option value="available">In stock</option>
+          <option value="all">All cars</option>
+        </select>
+        <ChevronRight size={12} />
+      </label>
+      <label>
+        <span className="sr-only">Car make</span>
+        <select
+          value={make}
+          onChange={(event) => {
+            setMake(event.target.value);
+            setModel("");
+          }}
+        >
+          <option value="">Any makes</option>
+          {makes.map((value) => (
+            <option key={value}>{value}</option>
           ))}
+        </select>
+        <ChevronRight size={12} />
+      </label>
+      <label>
+        <span className="sr-only">Car model</span>
+        <select
+          value={model}
+          onChange={(event) => setModel(event.target.value)}
+        >
+          <option value="">Any models</option>
+          {models.map((value) => (
+            <option key={value}>{value}</option>
+          ))}
+        </select>
+        <ChevronRight size={12} />
+      </label>
+      <label>
+        <span className="sr-only">Car budget</span>
+        <select
+          value={budget}
+          onChange={(event) => setBudget(event.target.value)}
+        >
+          <option value="">All pricing</option>
+          <option value="40000">Up to $40,000</option>
+          <option value="70000">Up to $70,000</option>
+          <option value="100000">Up to $100,000</option>
+          <option value="200000">Up to $200,000</option>
+        </select>
+        <ChevronRight size={12} />
+      </label>
+      <button type="submit">Search</button>
+    </form>
+  );
+}
+function Home({ saved, toggleSaved, onEnquire }) {
+  const [collectionTab, setCollectionTab] = useState("available");
+  const [featuredStart, setFeaturedStart] = useState(0);
+  const collection = vehicles.filter(
+    (car) => collectionTab === "all" || car.status === collectionTab,
+  );
+  const maxFeaturedStart = Math.max(0, collection.length - 4);
+  const featured = collection.slice(featuredStart, featuredStart + 4);
+  return (
+    <main className="dealer-home reference-home">
+      <section className="reference-hero">
+        <img
+          className="reference-hero-image"
+          src="/images/studio-hero.webp"
+          alt="Illustrative studio image of a silver Porsche convertible"
+          fetchPriority="high"
+        />
+        <div className="reference-hero-content">
+          <h1>Find your dream car</h1>
+          <HomeSearch />
         </div>
-        <p className="sample-note">
-          Example inventory for this website demo. Vehicles, prices and photos
-          are illustrative; call the team for current availability.
-        </p>
-      </section>
-      <section className="dealer-about" id="about">
-        <figure className="dealer-story-image">
-          <img src="/images/about.jpg" alt="Illustrative archive photograph of classic cars" loading="lazy" />
-          <figcaption>Automotive archive · Illustrative photography</figcaption>
-        </figure>
-        <div className="dealer-about-copy">
-          <div className="eyebrow">A LOCAL TEAM. A SHARED PASSION.</div>
-          <h2>A shared passion.<br />A personal approach.</h2>
+        <div className="hero-footnote">
           <p>
-            Impulse Automotive is a family-owned and operated dealership in
-            Elizabeth South. Classics, performance cars, daily drivers or 4WDs —
-            we’re here to help you find your next drive.
+            For that something special.
+            <br />
+            Family owned. Car obsessed.
+            <br />
+            Elizabeth South, South Australia.
           </p>
-          <p>
-            From your first car to the one you’ve always wanted, have a chat
-            with Barry and the team. We make buying, selling and trading feel
-            personal.
-          </p>
-          <button className="button primary" onClick={() => onEnquire({})}>
-            Talk to our team <ArrowRight size={18} />
-          </button>
+          <small>Illustrative campaign imagery</small>
         </div>
-        <div className="dealer-visit">
-          <h3>Visit our showroom</h3>
+        <a
+          className="hero-map"
+          href={business.maps}
+          target="_blank"
+          rel="noreferrer"
+        >
+          <span>
+            <MapPin size={24} fill="currentColor" />
+            <b>View on the map</b>
+          </span>
           <p>
             {business.address}
             <br />
             {business.suburb}
           </p>
-          <a href={`tel:${business.tel}`}>
-            <Phone size={18} />
-            {business.phone}
-          </a>
-          <p>Call to arrange a viewing.</p>
+        </a>
+      </section>
+      <div
+        className="marque-strip"
+        aria-label="Automotive marques — design inspiration, not current inventory"
+      >
+        {[
+          ["tesla", "Tesla"],
+          ["bmw", "BMW"],
+          ["volkswagen", "Volkswagen"],
+          ["porsche", "Porsche"],
+          ["ferrari", "Ferrari"],
+          ["audi", "Audi"],
+        ].map(([file, name]) => (
+          <img key={file} src={`/marques/${file}.svg`} alt={name} />
+        ))}
+      </div>
+      <section className="reference-offer" id="services">
+        <div className="offer-copy">
+          <h2>What we offer</h2>
+          <p>
+            A car you’ll love, and a local team who make
+            <br className="desktop-break" /> buying, selling and trading feel
+            personal.
+          </p>
+          <ol>
+            <li>
+              <span>01</span>Classics, performance and everyday favourites
+            </li>
+            <li>
+              <span>02</span>Talk directly with Barry and the team
+            </li>
+            <li>
+              <span>03</span>Buy, sell or trade your next car
+            </li>
+          </ol>
+          <Link className="button primary" to="/stock">
+            Explore more <ArrowRight size={16} />
+          </Link>
+        </div>
+        <Link className="offer-performance" to="/stock?body=Coupe">
+          <div>
+            <h3>Performance</h3>
+            <p>For the drive you look forward to.</p>
+          </div>
+          <img
+            src="/images/detail-2.jpg"
+            alt="Illustrative sports car wheel and body detail"
+            loading="lazy"
+          />
+          <ArrowUpRight className="offer-arrow" size={23} />
+        </Link>
+        <button className="offer-trade" onClick={() => onEnquire({})}>
+          <h3>Next up.</h3>
+          <p>Buy. Sell. Trade.</p>
+          <img
+            src="/images/suv-cutout.webp"
+            alt="Illustrative white SUV"
+            loading="lazy"
+          />
+          <span>
+            Let’s talk cars <ArrowUpRight size={18} />
+          </span>
+        </button>
+      </section>
+      <section className="section collection reference-collection">
+        <div className="section-title">
+          <h2>The most searched cars</h2>
+        </div>
+        <div className="home-collection-toolbar">
+          <div
+            className="home-collection-tabs"
+            role="group"
+            aria-label="Featured stock availability"
+          >
+            {[
+              ["available", "In stock"],
+              ["sold", "Sold cars"],
+              ["all", "All cars"],
+            ].map(([value, text]) => (
+              <button
+                key={value}
+                className={collectionTab === value ? "selected" : ""}
+                aria-pressed={collectionTab === value}
+                onClick={() => {
+                  setCollectionTab(value);
+                  setFeaturedStart(0);
+                }}
+              >
+                {text}
+              </button>
+            ))}
+          </div>
+          <Link className="button primary" to="/stock">
+            View all <ArrowRight size={14} />
+          </Link>
+        </div>
+        <div className="card-grid featured">
+          {featured.map((car) => (
+            <CarCard key={car.id} {...{ car, saved, toggleSaved }} />
+          ))}
+        </div>
+        <div className="carousel-controls">
+          <button
+            aria-label="Previous featured cars"
+            disabled={featuredStart === 0}
+            onClick={() => setFeaturedStart((start) => Math.max(0, start - 1))}
+          >
+            <ArrowLeft size={16} />
+          </button>
+          <button
+            aria-label="Next featured cars"
+            disabled={featuredStart === maxFeaturedStart}
+            onClick={() =>
+              setFeaturedStart((start) => Math.min(maxFeaturedStart, start + 1))
+            }
+          >
+            <ArrowRight size={16} />
+          </button>
+        </div>
+        <p className="sample-note">
+          Example inventory for this website demo. Vehicles, prices and photos
+          are illustrative; call the team for current availability.
+        </p>
+        <Link className="text-link collection-explore" to="/stock">
+          Explore our stock <ArrowRight size={18} />
+        </Link>
+      </section>
+      <section className="reference-sell">
+        <img
+          src="/images/sell-supercar.webp"
+          alt="Illustrative silver supercar with its doors raised in a studio"
+          loading="lazy"
+        />
+        <div>
+          <h2>
+            Sell your car to
+            <br />
+            our dealership
+          </h2>
+          <p>
+            Ready for something different? Talk with our team
+            <br className="desktop-break" /> about selling or trading your car.
+          </p>
+          <button className="button primary" onClick={() => onEnquire({})}>
+            Sell the car <ArrowRight size={15} />
+          </button>
+        </div>
+        <small>Illustrative campaign imagery</small>
+      </section>
+      <section className="reference-contact dealer-about" id="about">
+        <div className="contact-copy">
+          <h2>
+            Start your journey
+            <br />
+            with us today
+          </h2>
+          <p>
+            Visit our family-owned showroom in Elizabeth South. From your first
+            car to something special, Barry and the team are here to help you
+            buy, sell or trade.
+          </p>
+          <button className="button primary" onClick={() => onEnquire({})}>
+            Contact us <ArrowRight size={15} />
+          </button>
+          <div className="contact-hours">
+            <h3>Come say hello</h3>
+            <div>
+              <span>VIEWINGS</span>
+              <span>Call to arrange a time</span>
+            </div>
+            <div>
+              <span>GOOGLE REVIEWS</span>
+              <span>4.6 / 5 · 41 reviews</span>
+            </div>
+          </div>
+        </div>
+        <div className="contact-location">
           <a
-            className="text-link"
+            className="contact-map"
             href={business.maps}
             target="_blank"
             rel="noreferrer"
+            aria-label="View Impulse Automotive on Google Maps"
           >
-            Directions on Google Maps <ArrowUpRight size={18} />
-          </a>
-        </div>
-      </section>
-      <section className="section reviews" id="reviews">
-        <div className="section-title">
-          <div>
-            <div className="eyebrow">THE IMPULSE EXPERIENCE</div>
-            <h2>In our customers’ words.</h2>
-          </div>
-          <div className="rating">
-            <b>4.6</b>
-            <span>
-              <span className="stars">★★★★★</span>
-              <small>41 Google reviews</small>
+            <div className="location-roads" aria-hidden="true">
+              <i />
+              <i />
+              <i />
+              <i />
+              <i />
+              <span>PHILIP HIGHWAY</span>
+              <b>ELIZABETH SOUTH</b>
+            </div>
+            <span className="location-pin">
+              <MapPin size={25} fill="currentColor" />
             </span>
+            <div className="location-address">
+              {business.address}
+              <br />
+              {business.suburb}
+              <small>
+                Open Google Maps for directions <ArrowUpRight size={12} />
+              </small>
+            </div>
+          </a>
+          <div className="contact-pills">
+            <a href={`tel:${business.tel}`}>
+              <Phone size={17} />
+              {business.phone}
+            </a>
+            <a
+              href="https://www.facebook.com/impulseautomotivesales/"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Follow Impulse <ArrowUpRight size={17} />
+            </a>
           </div>
-        </div>
-        <div className="review-grid">
-          <Review
-            quote="Their open approach and commitment to customer service was exemplary and they really worked hard to get us a great deal."
-            name="Ben Easter"
-            detail="Google review · Toyota 79 Series buyer"
-          />
-          <Review
-            quote="Cars in great condition, they always put the customer first. Saved me a lot of time and headaches."
-            name="Nicholas Chapley"
-            detail="Google review"
-          />
-          <Review
-            quote="Barry and the team provided a great experience for my son purchasing his first car."
-            name="Daniel Law"
-            detail="Google review · First-car family"
-          />
         </div>
       </section>
     </main>
   );
 }
-function Review({ quote, name, detail }) {
-  return (
-    <article className="review">
-      <Quote className="review-quote-mark" size={26} aria-hidden="true" />
-      <blockquote>“{quote}”</blockquote>
-      <div className="review-person">
-        <span className="avatar">{name[0]}</span>
-        <span>
-          <b>{name}</b>
-          <small>{detail}</small>
-        </span>
-        <span className="google-g">G</span>
-      </div>
-    </article>
-  );
-}
+
 function Stock({ saved, toggleSaved }) {
   const [params, setParams] = useSearchParams();
   const status = params.get("status") || "available";
-  const [search, setSearch] = useState(""),
-    [makes, setMakes] = useState([]),
-    [body, setBody] = useState(""),
+  const [search, setSearch] = useState(params.get("model") || ""),
+    [makes, setMakes] = useState(
+      params.get("make") ? [params.get("make")] : [],
+    ),
+    [body, setBody] = useState(params.get("body") || ""),
     [transmission, setTransmission] = useState(""),
-    [max, setMax] = useState(""),
+    [max, setMax] = useState(params.get("max") || ""),
     [sort, setSort] = useState("newest"),
     [savedOnly, setSavedOnly] = useState(false),
     [filtersOpen, setFiltersOpen] = useState(false);
@@ -542,7 +739,14 @@ function Stock({ saved, toggleSaved }) {
   return (
     <main className="stock-page">
       <section className="stock-page-bar">
-        <h1>Explore the collection</h1>
+        <div>
+          <span className="eyebrow">THE IMPULSE COLLECTION</span>
+          <h1>Cars with character.</h1>
+          <p>
+            Find the one that feels like you. Example inventory for this website
+            demo.
+          </p>
+        </div>
         <span>
           <MapPin size={16} />
           Elizabeth South, South Australia
@@ -653,7 +857,8 @@ function Stock({ saved, toggleSaved }) {
               in mind?
             </h3>
             <p>
-              Talk cars with our team. We're here to help you find your next drive.
+              Talk cars with our team. We're here to help you find your next
+              drive.
             </p>
             <a className="text-link" href={`tel:${business.tel}`}>
               Let's talk <ArrowUpRight size={17} />
@@ -706,7 +911,9 @@ function Stock({ saved, toggleSaved }) {
           <div className="results-heading">
             <span>
               <b>{filtered.length}</b> {filtered.length === 1 ? "car" : "cars"}{" "}
-              {status === "sold" ? "in the sold examples" : "in the demo collection"}
+              {status === "sold"
+                ? "in the sold examples"
+                : "in the demo collection"}
             </span>
             <div>
               <button
@@ -755,7 +962,8 @@ function Stock({ saved, toggleSaved }) {
           )}
           <p className="sample-note">
             Example inventory for this website demo. All vehicles, photography,
-            prices and specifications are illustrative; these are not live listings.
+            prices and specifications are illustrative; these are not live
+            listings.
           </p>
         </section>
       </div>
@@ -773,9 +981,7 @@ function Vehicle({ saved, toggleSaved, onEnquire }) {
     setTab("overview");
     setZoom(false);
   }, [id]);
-  const photos = car
-    ? (car.gallery?.length ? car.gallery : [car.image])
-    : [];
+  const photos = car ? (car.gallery?.length ? car.gallery : [car.image]) : [];
   const move = (n) => setIndex((i) => (i + n + photos.length) % photos.length);
   useEffect(() => {
     if (!zoom) return;
@@ -842,42 +1048,48 @@ function Vehicle({ saved, toggleSaved, onEnquire }) {
               >
                 <Expand size={19} />
               </button>
-              {photos.length > 1 && <button
-                className="gallery-prev gallery-nav"
-                aria-label="Previous vehicle photo"
-                onClick={() => move(-1)}
-              >
-                <ChevronLeft size={24} />
-              </button>}
-              {photos.length > 1 && <button
-                className="gallery-next gallery-nav"
-                aria-label="Next vehicle photo"
-                onClick={() => move(1)}
-              >
-                <ChevronRight size={24} />
-              </button>}
+              {photos.length > 1 && (
+                <button
+                  className="gallery-prev gallery-nav"
+                  aria-label="Previous vehicle photo"
+                  onClick={() => move(-1)}
+                >
+                  <ChevronLeft size={24} />
+                </button>
+              )}
+              {photos.length > 1 && (
+                <button
+                  className="gallery-next gallery-nav"
+                  aria-label="Next vehicle photo"
+                  onClick={() => move(1)}
+                >
+                  <ChevronRight size={24} />
+                </button>
+              )}
               <span className="gallery-count">
                 {String(index + 1).padStart(2, "0")} /{" "}
                 {String(photos.length).padStart(2, "0")}
               </span>
             </div>
-            {photos.length > 1 && <div className="gallery-thumbs">
-              {photos.map((photo, i) => (
-                <button
-                  key={i}
-                  className={i === index ? "current" : ""}
-                  aria-label={`Show vehicle photo ${i + 1}`}
-                  aria-pressed={i === index}
-                  onClick={() => setIndex(i)}
-                >
-                  <img src={photo} alt="" />
-                  <span>{String(i + 1).padStart(2, "0")}</span>
-                </button>
-              ))}
-            </div>}
+            {photos.length > 1 && (
+              <div className="gallery-thumbs">
+                {photos.map((photo, i) => (
+                  <button
+                    key={i}
+                    className={i === index ? "current" : ""}
+                    aria-label={`Show vehicle photo ${i + 1}`}
+                    aria-pressed={i === index}
+                    onClick={() => setIndex(i)}
+                  >
+                    <img src={photo} alt="" />
+                    <span>{String(i + 1).padStart(2, "0")}</span>
+                  </button>
+                ))}
+              </div>
+            )}
             <p className="gallery-note">
-              Illustrative model photography. These are example listings,
-              not current showroom vehicles.
+              Illustrative model photography. These are example listings, not
+              current showroom vehicles.
             </p>
           </section>
           <section className="vehicle-info">
@@ -1099,18 +1311,22 @@ function Vehicle({ saved, toggleSaved, onEnquire }) {
             alt={`Illustrative ${car.make} ${car.model} photo ${index + 1} of ${photos.length}`}
           />
           <div className="lightbox-controls">
-            {photos.length > 1 && <button
-              aria-label="Previous expanded photo"
-              onClick={() => move(-1)}
-            >
-              <ChevronLeft />
-            </button>}
+            {photos.length > 1 && (
+              <button
+                aria-label="Previous expanded photo"
+                onClick={() => move(-1)}
+              >
+                <ChevronLeft />
+              </button>
+            )}
             <span>
               {index + 1} / {photos.length}
             </span>
-            {photos.length > 1 && <button aria-label="Next expanded photo" onClick={() => move(1)}>
-              <ChevronRight />
-            </button>}
+            {photos.length > 1 && (
+              <button aria-label="Next expanded photo" onClick={() => move(1)}>
+                <ChevronRight />
+              </button>
+            )}
           </div>
           <p>Illustrative model photography</p>
         </Dialog>
@@ -1289,8 +1505,8 @@ function Enquiry({ vehicle, onClose }) {
           }}
         >
           <p>
-            Tell our team what you have in mind. Prepare your message, then
-            send it with your messaging app.
+            Tell our team what you have in mind. Prepare your message, then send
+            it with your messaging app.
           </p>
           <label>
             Your name
@@ -1378,19 +1594,20 @@ function Footer() {
         <div>
           <Logo />
           <p>
-            Classics. Performance. Everyday drivers.
+            For that something special.
             <br />
-            Your local team in Elizabeth South.
+            Family owned. Elizabeth South, Adelaide.
           </p>
         </div>
         <div>
-          <span className="footer-label">THE COLLECTION</span>
+          <span className="footer-label">Menu</span>
+          <Link to="/">Home</Link>
           <Link to="/stock">Available stock</Link>
           <Link to="/stock?status=sold">Sold cars</Link>
           <Link to="/#about">Our story</Link>
         </div>
         <div>
-          <span className="footer-label">COME SAY HELLO</span>
+          <span className="footer-label">Find us</span>
           <a href={business.maps} target="_blank" rel="noreferrer">
             {business.address}
             <br />
@@ -1398,10 +1615,25 @@ function Footer() {
             <ArrowUpRight size={14} />
           </a>
           <a href={`tel:${business.tel}`}>{business.phone}</a>
-          <a href="https://www.facebook.com/impulseautomotivesales/" target="_blank" rel="noreferrer">
+          <a
+            href="https://www.facebook.com/impulseautomotivesales/"
+            target="_blank"
+            rel="noreferrer"
+          >
             Follow Impulse on Facebook <ArrowUpRight size={14} />
           </a>
           <span className="footer-appointment">Call to arrange a viewing.</span>
+        </div>
+        <div className="footer-next-drive">
+          <h3>Your next drive starts here.</h3>
+          <p>
+            Something caught your eye?
+            <br />
+            Talk to our team about it.
+          </p>
+          <Link className="button" to="/stock">
+            Explore the collection <ArrowRight size={15} />
+          </Link>
         </div>
       </div>
       <div className="footer-bottom">
